@@ -1,0 +1,91 @@
+import time
+
+class Item:
+    def __init__(self, profit, weight, index):
+        self.profit = profit
+        self.weight = weight
+        self.index = index 
+
+def cmpByProfit(item):
+    return -item.profit
+
+def cmpByWeight(item):
+    return item.weight
+
+def cmpByDensity(item):
+    return -item.profit / item.weight
+
+def greedy(W, items, cmp):
+    items.sort(key=cmp)
+
+    totalProfit = 0
+    remainingWeight = W
+    selectedItems = []
+    totalTime = 0
+
+    for item in items:
+        if item.weight <= remainingWeight:
+            remainingWeight -= item.weight
+            totalProfit += item.profit
+            totalTime += item.weight
+            selectedItems.append(item)
+
+    return totalProfit, totalTime, selectedItems
+
+def getInput():
+    items = []
+    try:
+        numItems = int(input('Masukkan jumlah daerah yang ingin dikunjungi: '))
+        if numItems <= 0:
+            raise ValueError
+
+        W = int(input('Masukkan lama waktu kampanye: '))
+        if W <= 0:
+            raise ValueError
+
+        for count in range(numItems):
+            profit = float(input(f'Total donasi maksimum daerah {count + 1}: '))
+            if profit <= 0:
+                raise ValueError
+
+            weight = float(input(f'Masukan lama waktu kampanye {count + 1}: '))
+            if weight <= 0:
+                raise ValueError
+
+            items.append(Item(profit, weight, count + 1))
+        
+        startTime = time.time()
+
+        print("Greedy by Profit:")
+        resultByProfit = greedy(W, items[:], cmpByProfit)
+        print("Pendapatan maksimum yang bisa diperoleh:", resultByProfit[0])
+        print("Urutan daerah:", [item.index for item in resultByProfit[2]])
+        print("Total lama kampanye:", resultByProfit[1])
+
+        print("\nGreedy by Weight:")
+        resultByWeight = greedy(W, items[:], cmpByWeight)
+        print("Pendapatan maksimum yang bisa diperoleh:", resultByWeight[0])
+        print("Urutan daerah:", [item.index for item in resultByWeight[2]])
+        print("Total lama kampanye:", resultByWeight[1])
+
+        print("\nGreedy by Density:")
+        resultByDensity = greedy(W, items[:], cmpByDensity)
+        print("Pendapatan maksimum yang bisa diperoleh:", resultByDensity[0])
+        print("Urutan daerah:", [item.index for item in resultByDensity[2]])
+        print("Total lama kampanye:", resultByDensity[1])
+
+        bestResult = max(resultByProfit, resultByWeight, resultByDensity, key=lambda x: x[0])
+
+        print("\nHasil akhir berdasarkan strategi greedy terbaik:")
+        print("Pendapatan maksimum yang bisa diperoleh:", bestResult[0])
+        print("Urutan daerah:", [item.index for item in bestResult[2]])
+        print("Total lama kampanye:", bestResult[1])
+
+        endTime = time.time()
+        elapsedTime = endTime - startTime
+        print("\nWaktu eksekusi program:", f"{elapsedTime:.6f}", "detik")
+    
+    except ValueError:
+        print("Invalid input. Please enter a positive integer.")
+
+getInput()
