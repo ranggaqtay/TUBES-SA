@@ -1,0 +1,67 @@
+import time
+
+def max(a, b):
+    return a if a > b else b
+
+def bruteforce(W, wt, val, n, items):
+    if n == 0 or W == 0:
+        return {'maxProfit': 0, 'selectedItems': []}
+
+    if wt[n - 1] > W:
+        return bruteforce(W, wt, val, n - 1, items)
+
+    includeItem = bruteforce(W - wt[n - 1], wt, val, n - 1, items)
+    includeItem['maxProfit'] += val[n - 1]
+    includeItem['selectedItems'].append(items[n - 1])
+
+    excludeItem = bruteforce(W, wt, val, n - 1, items)
+
+    if includeItem['maxProfit'] > excludeItem['maxProfit']:
+        return includeItem
+    else:
+        return excludeItem
+
+def getItemInput(numItems, items, W, currentIndex):
+    if currentIndex < numItems:
+        profitItem = int(input(f'Total donasi maksimum daerah {currentIndex + 1}: '))
+        weightItem = int(input(f'Masukkan lama waktu kampanye {currentIndex + 1}: '))
+        items.append({'weight': weightItem, 'profit': profitItem, 'index': currentIndex + 1})
+        getItemInput(numItems, items, W, currentIndex + 1)
+    else:
+        startTime = time.time()
+
+        items.sort(key=lambda item: item['weight'])
+
+        weight = [item['weight'] for item in items]
+        profit = [item['profit'] for item in items]
+
+        result = bruteforce(W, weight, profit, numItems, items)
+        maxProfit = result['maxProfit']
+        selectedItems = result['selectedItems']
+
+        totalTravelTime = sum(item['weight'] for item in selectedItems)
+
+        print("\nTotal donasi maksimum:", maxProfit)
+        print("\nUrutan daerah yang dikunjungi:\n")
+
+        selectedItems.sort(key=lambda item: item['index'])
+        for item in selectedItems:
+            print(f"Daerah {item['index']} dengan waktu tempuh {item['weight']} dan donasi {item['profit']}")
+
+        endTime = time.time()
+        timeAkhir = endTime - startTime    
+
+        print(f"\nTotal waktu tempuh: {totalTravelTime}")
+        print(f"Lama eksekusi knapsack: {timeAkhir:.6f} detik\n")
+
+numItems = int(input('Masukkan jumlah daerah yang ingin dikunjungi: '))
+if numItems <= 0:
+    print('Invalid input. Please enter a positive integer.')
+else:
+    items = []
+
+    W = int(input('Masukkan lama waktu kampanye: '))
+    if W <= 0:
+        print('Masukan bilangan integer.')
+    else:
+        getItemInput(numItems, items, W, 0)
